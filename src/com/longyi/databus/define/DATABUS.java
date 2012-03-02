@@ -30,7 +30,8 @@ public class DATABUS {
 
 	
 	public static final String LOCAL_CPP_DAEMON_ENDPOINT="tcp://127.0.0.1:56432";
-	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="ipc://DataBus:56432";
+	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="ipc://";
+	public static final int ENDPOINT_PORT = 56432;
 	
 	public static final long MAX_MEMORY_FOR_MESSAGE=1024*1024*1024*2;//2G
 	public static final long MAX_MEMORY_FOR_CHANNEL=1024*1024*1024*2;//2G
@@ -42,6 +43,6 @@ public class DATABUS {
 	//KeyServer使用
 	public static final String KEYREQBACKEND="inproc://KeyReqBackEnd";
 	public static final String KEYPUBBACKEND="inproc://KeyPubBackEnd";
-	public static final String FILE_DATA_PATH="/home/sophia-long/databus/";
+	public static final String FILE_DATA_PATH="/tmp/databus/";
 	public static final int CHANNELDATANUBMER_MAX=1000;
 }

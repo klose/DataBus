@@ -5,14 +5,15 @@ import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQQueue;
 import org.zeromq.ZMsg;
+
 import com.longyi.databus.define.DATABUS;
 
 public class DaemonMain {
 
 	public static String LocalEndpoint;
 	
-	public static String KeyServerEndpoint="tcp://192.168.1.123:34520";
-	public static String SubEndpoint="tcp://192.168.1.123:34521";
+	public static String KeyServerEndpoint="tcp://10.10.102.17:34520";
+	public static String SubEndpoint="tcp://10.10.102.17:34521";
 	public static String LocalIpAddress;
 	
 	private static Context context;
@@ -47,7 +48,8 @@ public class DaemonMain {
 		ToKeyServerSoc=context.socket(ZMQ.REQ);
 		ToKeyServerSoc.connect(KeyServerEndpoint);
 		InnerSoc=context.socket(ZMQ.ROUTER);
-		InnerSoc.bind(DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT);
+//		InnerSoc.bind(DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT);
+		InnerSoc.bind(DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT + LocalIpAddress.substring(LocalIpAddress.length()-2) + ":" + DATABUS.ENDPOINT_PORT);
 		OuterSoc=context.socket(ZMQ.ROUTER);
 		OuterSoc.bind(LocalEndpoint);
 		InbackendSoc=context.socket(ZMQ.DEALER);

@@ -178,6 +178,7 @@ public class DataMap {
 	{
 		try {
 			String Filepath=DATABUS.FILE_DATA_PATH+"/Message/"+key;
+			System.out.println(Filepath);
 			File file=new File(Filepath);
 			if(!file.exists())
 				try {
@@ -442,6 +443,8 @@ public class DataMap {
 	{
 		ZMsg rtv=new ZMsg();
 		Vector<ZMsg> MsgList=ChannelMap.get(key);
+		if(MsgList==null)
+			return null;
 		int size=MsgList.size();
 		System.out.println("size of ZMsgList="+size);
 		for(int i=0;i<size;i++)

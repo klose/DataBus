@@ -9,8 +9,6 @@ import org.zeromq.ZMQException;
 import org.zeromq.ZMsg;
 
 import com.longyi.databus.define.DATABUS;
-
-
 public class InnerWorkThread extends Thread{
 	private Context context;
     private final ZMQ.Poller poller;
@@ -351,6 +349,8 @@ public class InnerWorkThread extends Thread{
 	            					ZMsg ToOuterNode=new ZMsg();
 	            					ToOuterNode.addLast(Integer.toString(DATABUS.GET_A_FILE));
 	            					ToOuterNode.addLast(key);
+									ToOuterNode.addLast(Long.toString(offset));
+									ToOuterNode.addLast(Long.toString(length));
 	            					ZMsg RecvMsg=RequestToOuterNode(ToOuterNode, Endpoint);
 	            					appendMsg(BackMsg,RecvMsg).send(worker);
 	            				}

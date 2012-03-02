@@ -1,4 +1,5 @@
 package com.longyi.databus.test;
+
 import java.util.HashMap;
 
 public class TestHashMap {

@@ -7,8 +7,6 @@ import org.zeromq.ZMQ.Context;
 
 import com.longyi.databus.define.DATABUS;
 
-
-
 public class PubMessageRecv extends Thread{
 	private Context context;
     private final ZMQ.Poller poller;

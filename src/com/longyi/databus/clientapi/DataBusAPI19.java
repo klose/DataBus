@@ -1,16 +1,17 @@
 package com.longyi.databus.clientapi;
 import com.longyi.databus.define.*;
-import com.longyi.databus.daemon.*;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import com.longyi.databus.daemon.*;
 
 import org.zeromq.*;
-public class DataBusAPI {
-	private String InProEndpoint=DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT;
+public class DataBusAPI19 {
+    String InProEndpoint=DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT;
 	private static final ZContext context=new ZContext();
 	private static final Queue<ZMQ.Socket> freeSocList=new ConcurrentLinkedQueue<ZMQ.Socket>();
-	DataBusAPI()
+	DataBusAPI19()
 	{
+		
 		String LocalIpAddress = GetLocalIpAddress.getIpAddresses();
 		this.InProEndpoint = DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT + LocalIpAddress.substring(LocalIpAddress.length()-2) + ":" + DATABUS.ENDPOINT_PORT;
 	};
@@ -330,12 +331,12 @@ public class DataBusAPI {
 	
 	public static void main(String[] args)
 	{
-		DataBusAPI _dataApi=new DataBusAPI();
+		DataBusAPI19 _dataApi=new DataBusAPI19();
 		//String data="hahha";
 		//
 		
-		byte[] data=new byte[255*1024*1024];
-		_dataApi.sendMessage("love", data);
+		//byte[] data=new byte[257*1024*1024];
+		//_dataApi.sendMessage("love", data);
 		long start = System.currentTimeMillis();
 		byte[] result=_dataApi.getMessage("love");
 		//System.out.println(result.length);
@@ -345,11 +346,11 @@ public class DataBusAPI {
 			//System.out.println(result1.length);
 			//System.out.println(new String(result1));
 		}
-		System.out.println("get twice 255m used" + (System.currentTimeMillis() - start) + "ms");
-		String ChannelData1="ChannelData1";
-		_dataApi.sendDataToChannel("heihei",ChannelData1.getBytes());
-		String ChannelData2="ChannelData2";
-		_dataApi.sendDataToChannel("heihei",ChannelData2.getBytes());
+		System.out.println("used:" + (System.currentTimeMillis() - start ) + "ms");
+		//String ChannelData1="ChannelData1";
+		//_dataApi.sendDataToChannel("heihei",ChannelData1.getBytes());
+		//String ChannelData2="ChannelData2";
+		//_dataApi.sendDataToChannel("heihei",ChannelData2.getBytes());
 		//try {
 		//	Thread.sleep(1000);
 		//} catch (InterruptedException e) {
@@ -359,7 +360,7 @@ public class DataBusAPI {
 		System.out.println(new String(_dataApi.getDataFromChannel("heihei",0)));
 		System.out.println(new String(_dataApi.getDataFromChannel("heihei",1)));
 		System.out.println(new String(_dataApi.getALLDataFromChannel("heihei")));
-		_dataApi.insertAFile("Client.cpp", "/tmp/Client.cpp");
+		//_dataApi.insertAFile("Client.cpp", "/tmp/Client.cpp");
 		System.out.println(_dataApi.getFileSize("Client.cpp"));
 		System.out.println(new String(_dataApi.getFileData("Client.cpp",0,_dataApi.getFileSize("Client.cpp"))));
 		

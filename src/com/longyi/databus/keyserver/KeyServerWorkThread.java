@@ -1,15 +1,12 @@
 package com.longyi.databus.keyserver;
 
 
-
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 import org.zeromq.ZMsg;
 import org.zeromq.ZMQ.Context;
 
 import com.longyi.databus.define.DATABUS;
-
-
 
 public class KeyServerWorkThread extends Thread{
 	private Context context;
