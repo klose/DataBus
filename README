@@ -6,4 +6,10 @@ DataBus provides these functions:
 It builds on zero-mq, which makes data transfer more fluently.
 Its structure is a raw Master-Slave, so it will be easy to make compatible with distributed computing framework.
 
+System Requirment:
+1)ZMQ
+2)JDK
+3)in run.sh, set JAVA_LIBRARY_PATH=/path/to/zmq/lib 
+
+
 Owner: Longyi, Binos
