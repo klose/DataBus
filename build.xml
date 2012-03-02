@@ -1,0 +1,40 @@
+<!-- this build.xml is used for constructing  DataBus Server.-->
+<project name="Master-Slave" default="compile" basedir=".">
+	<description>
+		data bus
+	</description>
+	<property name="src" location="src"/>
+	<property name="classes" location="classes"/>
+	<property name="dist" location="dist"/>
+	<path id="base.path" path="${classpath}"/>
+	<path id="lib.path.ref">
+		<fileset dir="lib" includes="*.jar"/>
+	</path>
+	<target name="init">
+		<tstamp/>
+		<mkdir dir="${classes}"/>
+		<mkdir dir="${dist}"/>
+	</target>
+	
+	<target name="compile" depends="init" 	
+		description="compile the source">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<javac srcdir="${src}" destdir="${classes}" includeantruntime="on" debug="on">
+			<!--compilerarg args="-Xbootclasspath/p:${classpath}:${toString:lib.path.ref}"/-->
+			<classpath>
+				<pathelement path="${classpath}"/>
+				<pathelement location="${classes}"/>
+				<fileset dir="lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	<target name="clean"
+        description="clean up" >
+    <!-- Delete the ${classes} and ${dist} directory trees -->
+    <delete dir="${classes}"/>
+    <delete dir="${dist}"/>
+  </target>
+</project>
+

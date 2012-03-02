@@ -1,0 +1,9 @@
+DataBus is a fast data transmit from endpoint to endpoint.
+DataBus provides these functions:
+1) data transfer in multi-threads, using access share memory.
+2) data transfer in processes, using local socket.
+3) data transfer in different nodes, using event-driven message forward.
+It builds on zero-mq, which makes data transfer more fluently.
+Its structure is a raw Master-Slave, so it will be easy to make compatible with distributed computing framework.
+
+Owner: Longyi, Binos
