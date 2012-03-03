@@ -9,7 +9,7 @@ public class DataBusAPI {
 	private String InProEndpoint=DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT;
 	private static final ZContext context=new ZContext();
 	private static final Queue<ZMQ.Socket> freeSocList=new ConcurrentLinkedQueue<ZMQ.Socket>();
-	DataBusAPI()
+	public DataBusAPI()
 	{
 		String LocalIpAddress = GetLocalIpAddress.getIpAddresses();
 		this.InProEndpoint = DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT + LocalIpAddress.substring(LocalIpAddress.length()-2) + ":" + DATABUS.ENDPOINT_PORT;

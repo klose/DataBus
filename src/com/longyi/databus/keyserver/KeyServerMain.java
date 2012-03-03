@@ -1,17 +1,15 @@
 package com.longyi.databus.keyserver;
 
 import java.util.HashMap;
-
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQForwarder;
 import org.zeromq.ZMQQueue;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
-
-import com.longyi.databus.daemon.GetLocalIpAddress;
 import com.longyi.databus.define.DATABUS;
+import com.longyi.databus.define.GetLocalIpAddress;
 
-public class KeyServerMain {
+public class KeyServerMain extends Thread{
 	public static final HashMap<String,String> MessageMap=new HashMap<String,String>();
 	public static final HashMap<String,String> ChannelMap=new HashMap<String,String>();
 	public static final HashMap<String,String> FileMap=new HashMap<String,String>();
@@ -25,10 +23,11 @@ public class KeyServerMain {
 	
 	private static String pubEndpoint;
 	private static String reqEndpoint;
+	
 	/**
 	 * @param args
 	 */
-	KeyServerMain()
+	public KeyServerMain()
 	{
 		LocalIpAddress=GetLocalIpAddress.getIpAddresses();
 		if(LocalIpAddress==null)
@@ -48,14 +47,13 @@ public class KeyServerMain {
 		pubbackendSoc=context.socket(ZMQ.PULL);
 		pubbackendSoc.bind(DATABUS.KEYPUBBACKEND);
 	}
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		KeyServerMain _ins=new KeyServerMain();
+	
+	public void run() {
+		System.out.println("start DataBus Main Service...");
 		Thread ReqThread = new Thread(new ZMQQueue(context, reqSoc, reqbackendSoc));
 		ReqThread.start();
         Thread PubThread = new Thread(new ZMsgForThread(context, pubbackendSoc,pubSoc));
-        PubThread.start();
-		
+        PubThread.start();		
 		for(int i=0;i<5;i++){
 			KeyServerWorkThread _workThread=new KeyServerWorkThread(context);
 			_workThread.start();
@@ -71,5 +69,4 @@ public class KeyServerMain {
 			}
 		}
 	}
-
 }

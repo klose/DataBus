@@ -1,4 +1,4 @@
-package com.longyi.databus.daemon;
+package com.longyi.databus.define;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;

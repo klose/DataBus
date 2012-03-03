@@ -7,15 +7,20 @@ import org.zeromq.ZMQQueue;
 import org.zeromq.ZMsg;
 
 import com.longyi.databus.define.DATABUS;
+import com.longyi.databus.define.GetLocalIpAddress;
 
-public class DaemonMain {
+public class DaemonMain extends Thread{
 
 	public static String LocalEndpoint;
 	
-	public static String KeyServerEndpoint="tcp://10.10.102.17:34520";
-	public static String SubEndpoint="tcp://10.10.102.17:34521";
+	public static String KeyServerEndpoint;
+	public static String SubEndpoint;
+	public final static int SubEndpointPort = 34521;
+	public final static int KeyServerEndpointPort = 34520;
+	public final String KeyServerIpAddr;
 	public static String LocalIpAddress;
-	
+	public final static int InnerWorkThreadNum = 5;
+	public final static int OuterWorkThreadNum = 5;
 	private static Context context;
 	private static Socket ToKeyServerSoc;
 	private static Socket InnerSoc;
@@ -34,8 +39,11 @@ public class DaemonMain {
 	{
 		sync=false;
 	}
-	DaemonMain()
+	public DaemonMain(String ServerIpAddr)
 	{
+		this.KeyServerIpAddr = ServerIpAddr;
+		KeyServerEndpoint = "tcp://" + this.KeyServerIpAddr + ":" + this.KeyServerEndpointPort;
+		SubEndpoint =  "tcp://" + this.KeyServerIpAddr + ":" + this.SubEndpointPort;
 		setSyncFalse();
 		context=ZMQ.context(10);
 		LocalIpAddress=GetLocalIpAddress.getIpAddresses();
@@ -91,21 +99,20 @@ public class DaemonMain {
 		
 		return true;
 	}
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		DaemonMain _daemon=new DaemonMain();	
+	public void run() {
 		getAllInfoFromKeyServer();
-		for(int i=0;i<5;i++)
+		System.out.println("Start DataBus Daemon...");
+		for(int i=0;i<InnerWorkThreadNum;i++)
 		{
 			InnerWorkThread _iner=new InnerWorkThread(context);
 			_iner.start();
 		}
-		for(int j=0;j<5;j++)
+		for(int j=0;j<InnerWorkThreadNum;j++)
 		{
 			OuterWorkThread _outer=new OuterWorkThread(context);
 			_outer.start();
 		}
-		System.out.println("Set Up Ok");
+		
 		while(!Thread.currentThread().isInterrupted())
 		{
 			try {
