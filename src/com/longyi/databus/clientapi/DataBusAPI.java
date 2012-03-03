@@ -5,9 +5,10 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.zeromq.*;
+import org.zeromq.ZMQ.Context;
 public class DataBusAPI {
 	private String InProEndpoint=DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT;
-	private static final ZContext context=new ZContext();
+	private static Context context=DATABUS.context;
 	private static final Queue<ZMQ.Socket> freeSocList=new ConcurrentLinkedQueue<ZMQ.Socket>();
 	public DataBusAPI()
 	{
@@ -16,7 +17,7 @@ public class DataBusAPI {
 	};
 	private ZMQ.Socket CreateNewSocToDaemon()
 	{
-		ZMQ.Socket tmpSoc=context.createSocket(ZMQ.REQ);
+		ZMQ.Socket tmpSoc=context.socket(ZMQ.REQ);
 		tmpSoc.connect(InProEndpoint);
 		return tmpSoc;
 	};

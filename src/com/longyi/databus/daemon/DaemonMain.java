@@ -1,5 +1,6 @@
 package com.longyi.databus.daemon;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -24,13 +25,13 @@ public class DaemonMain extends Thread{
 	public static String LocalIpAddress;
 	public final static int InnerWorkThreadNum = 5;
 	public final static int OuterWorkThreadNum = 5;
-	private static Context context;
+	private static Context context=DATABUS.context;
 	private static Socket ToKeyServerSoc;
 	private static Socket InnerSoc;
 	private static Socket OuterSoc;
 	private static Socket InbackendSoc;
 	private static Socket OuterbackendSoc;
-	private static boolean sync;
+	private static volatile boolean sync;
 	/**
 	 * @param args
 	 */
@@ -53,8 +54,16 @@ public class DaemonMain extends Thread{
 		System.out.println("DaemonMain: KeyServerIpAddr " + KeyServerIpAddr);
 		KeyServerEndpoint = "tcp://" + this.KeyServerIpAddr + ":" + this.KeyServerEndpointPort;
 		SubEndpoint =  "tcp://" + this.KeyServerIpAddr + ":" + this.SubEndpointPort;
+		File msgTmpDir = new File(DATABUS.FILE_DATA_PATH + "/Message");
+		File chTmpDir = new File(DATABUS.FILE_DATA_PATH + "/Channel");
+		if (!msgTmpDir.exists()) {
+			msgTmpDir.mkdirs();
+		}
+		if (!chTmpDir.exists()) {
+			chTmpDir.mkdirs();
+		}
 		setSyncFalse();
-		context=ZMQ.context(10);
+		//context=ZMQ.context(10);
 		LocalIpAddress=GetLocalIpAddress.getIpAddresses();
 		if(LocalIpAddress==null)
 			System.out.println("Cat get local ip address");
@@ -78,17 +87,9 @@ public class DaemonMain extends Thread{
 		Thread OutReqThread = new Thread(new ZMQQueue(context, InnerSoc, InbackendSoc));
 		OutReqThread.start();
 	}
+	
 	private static boolean getAllInfoFromKeyServer()
 	{
-		DataMap dataMap=new DataMap();
-		ZMsg RequestMsg=new ZMsg();
-		RequestMsg.addLast(Integer.toString(DATABUS.GET_ALL_KEY_INFO));
-		RequestMsg.send(ToKeyServerSoc);
-		ZMsg RecvMsg=ZMsg.recvMsg(ToKeyServerSoc);
-		dataMap.creatMessageLocationMap(RecvMsg.pop().toString());
-		dataMap.creatChannelLocationMap(RecvMsg.pop().toString());
-		dataMap.creatFileLocationMap(RecvMsg.pop().toString());
-		
 		PubMessageRecv _pub=new PubMessageRecv(context);
 		_pub.start();
 		while(!sync)
@@ -99,12 +100,21 @@ public class DaemonMain extends Thread{
 			SyncMsg.send(ToKeyServerSoc);
 			ZMsg SyncReceive=ZMsg.recvMsg(ToKeyServerSoc);
 			try {
-				Thread.sleep(100);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		
+		DataMap dataMap=new DataMap();
+		ZMsg RequestMsg=new ZMsg();
+		RequestMsg.addLast(Integer.toString(DATABUS.GET_ALL_KEY_INFO));
+		RequestMsg.send(ToKeyServerSoc);
+		ZMsg RecvMsg=ZMsg.recvMsg(ToKeyServerSoc);
+		dataMap.creatMessageLocationMap(RecvMsg.pop().toString());
+		dataMap.creatChannelLocationMap(RecvMsg.pop().toString());
+		dataMap.creatFileLocationMap(RecvMsg.pop().toString());
 		
 		return true;
 	}

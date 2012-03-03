@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.zeromq.ZFrame;
@@ -177,7 +178,8 @@ public class DataMap {
 	private int storeMessageToDisk(String key,ZMsg data,long datasize)
 	{
 		try {
-			String Filepath=DATABUS.FILE_DATA_PATH+"/Message/"+key;
+			UUID fileid=UUID.randomUUID();
+			String Filepath=DATABUS.FILE_DATA_PATH+"/Message/"+fileid.toString();
 			System.out.println(Filepath);
 			File file=new File(Filepath);
 			if(!file.exists())

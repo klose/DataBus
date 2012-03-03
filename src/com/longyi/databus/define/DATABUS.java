@@ -1,5 +1,8 @@
 package com.longyi.databus.define;
 
+import org.zeromq.ZMQ;
+import org.zeromq.ZMQ.Context;
+
 public class DATABUS {
 	public static final int GET_MESSAGE_LOCATION=0;
 	public static final int SEND_MESSAGE=1;
@@ -26,11 +29,11 @@ public class DATABUS {
 	public static final int NOTEXIST=102;
 	
 	public static final int GET_ALL_KEY_INFO=1000;
-	
+	public static final Context context = ZMQ.context(10);
 
 	
 	public static final String LOCAL_CPP_DAEMON_ENDPOINT="tcp://127.0.0.1:56432";
-	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="ipc://";
+	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="inproc://";
 	public static final int ENDPOINT_PORT = 56432;
 	
 	public static final long MAX_MEMORY_FOR_MESSAGE=1024*1024*1024*2;//2G
@@ -43,6 +46,6 @@ public class DATABUS {
 	//KeyServer使用
 	public static final String KEYREQBACKEND="inproc://KeyReqBackEnd";
 	public static final String KEYPUBBACKEND="inproc://KeyPubBackEnd";
-	public static final String FILE_DATA_PATH="/tmp/databus/";
+	public static final String FILE_DATA_PATH="/tmp/binos-tmp";
 	public static final int CHANNELDATANUBMER_MAX=1000;
 }
