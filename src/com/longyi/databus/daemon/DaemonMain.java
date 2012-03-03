@@ -1,5 +1,8 @@
 package com.longyi.databus.daemon;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
@@ -17,7 +20,7 @@ public class DaemonMain extends Thread{
 	public static String SubEndpoint;
 	public final static int SubEndpointPort = 34521;
 	public final static int KeyServerEndpointPort = 34520;
-	public final String KeyServerIpAddr;
+	public String KeyServerIpAddr = "";
 	public static String LocalIpAddress;
 	public final static int InnerWorkThreadNum = 5;
 	public final static int OuterWorkThreadNum = 5;
@@ -39,9 +42,15 @@ public class DaemonMain extends Thread{
 	{
 		sync=false;
 	}
-	public DaemonMain(String ServerIpAddr)
+	public DaemonMain(String serverIpAddr)
 	{
-		this.KeyServerIpAddr = ServerIpAddr;
+		try {
+			this.KeyServerIpAddr = InetAddress.getByName(serverIpAddr).getHostAddress();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("DaemonMain: KeyServerIpAddr " + KeyServerIpAddr);
 		KeyServerEndpoint = "tcp://" + this.KeyServerIpAddr + ":" + this.KeyServerEndpointPort;
 		SubEndpoint =  "tcp://" + this.KeyServerIpAddr + ":" + this.SubEndpointPort;
 		setSyncFalse();
@@ -113,15 +122,15 @@ public class DaemonMain extends Thread{
 			_outer.start();
 		}
 		
-		while(!Thread.currentThread().isInterrupted())
-		{
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//		while(!currentThread().isInterrupted())
+//		{
+//			try {
+//				Thread.sleep(5000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 }
