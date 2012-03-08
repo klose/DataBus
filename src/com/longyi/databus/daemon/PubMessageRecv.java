@@ -44,6 +44,8 @@ public class PubMessageRecv extends Thread{
 	            	case DATABUS.SEND_MESSAGE:
 	            		{
 	            			String Location=UpdateMsg.pop().toString();
+	            			if(!Location.equals(DaemonMain.LocalEndpoint))
+	            				dataMap.freeMessage(key);
 	            			dataMap.setMessageLocation(key, Location);
 	            			break;
 	            		}
@@ -56,6 +58,8 @@ public class PubMessageRecv extends Thread{
 	            	case DATABUS.SEND_TO_CHANNEL:
 		            	{
 	            			String Location=UpdateMsg.pop().toString();
+	            			if(!Location.equals(DaemonMain.LocalEndpoint))
+	            				dataMap.freeChannel(key);
 	            			dataMap.setChannelLocation(key, Location);
 	            			break;
 	            		}
@@ -68,6 +72,8 @@ public class PubMessageRecv extends Thread{
 	            	case DATABUS.INSERT_A_FILE:
 		            	{
 	            			String Location=UpdateMsg.pop().toString();
+	            			if(!Location.equals(DaemonMain.LocalEndpoint))
+	            				dataMap.freeFile(key);
 	            			dataMap.setFileLocation(key, Location);
 	            			break;
 	            		}

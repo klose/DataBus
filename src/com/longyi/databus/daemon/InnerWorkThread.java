@@ -326,11 +326,45 @@ public class InnerWorkThread extends Thread{
 	    						System.out.println("INSERT_A_FILE update to key server failed key="+key);
 	    					break;
 		            	}
+	            	case DATABUS.SET_A_FILE:
+		            	{
+		            		String key=RequestMsg.pop().toString();
+	            			long offset=Integer.parseInt(RequestMsg.pop().toString());
+	            			long length=Integer.parseInt(RequestMsg.pop().toString());
+	            			ZMsg data=RequestMsg;
+	            			int rtv=dataMap.storeOtherNodeFile(key, data, offset, length);
+	            			if(rtv==1)
+	            			{
+	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+	            				BackMsg.send(worker);
+	            			}
+	            			else
+	            			{
+	            				String Endpoint=dataMap.getFileLocation(key);
+	            				if(Endpoint==null)
+	            				{
+		            				BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+		            				BackMsg.send(worker);
+	            				}
+	            				else
+	            				{
+	            					ZMsg ToOuterNode=new ZMsg();
+	            					ToOuterNode.addLast(Integer.toString(DATABUS.SET_A_FILE));
+	            					ToOuterNode.addLast(key);
+									ToOuterNode.addLast(Long.toString(offset));
+									ToOuterNode.addLast(Long.toString(length));
+									ToOuterNode.addLast(data.pop());
+	            					ZMsg RecvMsg=RequestToOuterNode(ToOuterNode, Endpoint);
+	            					appendMsg(BackMsg,RecvMsg).send(worker);
+	            				}
+	            			}
+	            			break;
+		            	}
 	            	case DATABUS.GET_A_FILE:
 		            	{
 	            			String key=RequestMsg.pop().toString();
-	            			long offset=Integer.parseInt(RequestMsg.pop().toString());
-	            			long length=Integer.parseInt(RequestMsg.pop().toString());
+	            			int offset=Integer.parseInt(RequestMsg.pop().toString());
+	            			int length=Integer.parseInt(RequestMsg.pop().toString());
 	            			ZMsg rtv=dataMap.getFileDataWithOffset(key,offset,length);
 	            			if(rtv!=null){//数据在本地
 	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));

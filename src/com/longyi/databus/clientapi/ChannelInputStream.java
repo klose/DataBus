@@ -1,37 +1,35 @@
 package com.longyi.databus.clientapi;
-import com.longyi.databus.define.*;
-
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.zeromq.*;
 public class ChannelInputStream {
 	private class ThreadReader extends Thread
 	{
-		private String ChannelName=null;
-		private DataBusAPI dataBusAPI=null;
-		private int MsgIndex=0;
-		ThreadReader(String _ChannelName)
-		{
-			MsgIndex=0;
-			ChannelName=_ChannelName;
-			dataBusAPI=new DataBusAPI();
-		}
-		@SuppressWarnings("deprecation")
 		public void run()
 		{
-			while(true)
+			while(state)
 			{
 				byte[] channelData=dataBusAPI.getDataFromChannel(ChannelName, MsgIndex);
+				
 				if(channelData!=null)
 				{
+					//System.out.println("AutoMaticget Data");
 					MsgIndex++;
+					//System.out.println(MsgIndex+" data="+(new String(channelData)));
 					DataBufferArray.add(channelData);
+					QueueNumber++;
 				}
 				else
 				{
-					Threadstate=0;
+					System.out.println("suspend");
+					QueueNumber++;
 					this.suspend();
+					System.out.println("resume");
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}	
@@ -42,25 +40,29 @@ public class ChannelInputStream {
 	
 	private byte[] rightBuffer;
 	private String ChannelName;
+	private DataBusAPI dataBusAPI=null;
+	private int MsgIndex=0;
 	private int rightBufferPtr;
 	private int rightBufferSize;
 	private ThreadReader _dataTransferThread=null;
-	private int Threadstate;
-	ChannelInputStream(String _ChannelName)
+	private int QueueNumber=0;
+	private boolean state=true;
+	public ChannelInputStream(String _ChannelName)
 	{
 		rightBufferPtr=0;
 		rightBufferSize=0;
 		rightBuffer=null;
 		ChannelName=_ChannelName;
-		ThreadReader _dataTransferThread=new ThreadReader(ChannelName);
-		_dataTransferThread.start();
-		Threadstate=1;
-		
+		MsgIndex=0;
+		dataBusAPI=new DataBusAPI();
+		QueueNumber=0;
+		_dataTransferThread=new ThreadReader();
+		_dataTransferThread.start();		
 	};
 	public int close()
 	{
-		_dataTransferThread.stop();
-		_dataTransferThread.stop();
+		state=false;
+		_dataTransferThread.resume();
 		return 1;
 	}
 	public int skip(int datasize)
@@ -68,133 +70,111 @@ public class ChannelInputStream {
 		int dupdatasize=datasize;
 		while(datasize>rightBufferSize-rightBufferPtr)
 		{
-			datasize=datasize-(rightBufferSize-rightBufferPtr);
-			rightBuffer=DataBufferArray.poll();
 			if(rightBuffer!=null)
+				datasize=datasize-(rightBufferSize-rightBufferPtr);
+			if(QueueNumber>0)
 			{
-				rightBufferSize=rightBuffer.length;
-				rightBufferPtr=0;
+				rightBuffer=DataBufferArray.poll();
+				QueueNumber--;
+				if(rightBuffer!=null)
+				{
+					rightBufferSize=rightBuffer.length;
+					rightBufferPtr=0;
+				}
 			}
 			else
 			{
-				if(Threadstate==1)
+				_dataTransferThread.resume();
+				while(QueueNumber==0)
 				{
-					while(Threadstate==1)
-					{
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							return dupdatasize-datasize;
-						}
-					}
-					rightBuffer=DataBufferArray.poll();
-					if(rightBuffer!=null)
-					{
-						rightBufferSize=rightBuffer.length;
-						rightBufferPtr=0;
-					}
-					else
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 						return dupdatasize-datasize;
+					}
+				}
+				rightBuffer=DataBufferArray.poll();
+				QueueNumber--;
+				if(rightBuffer!=null)
+				{
+					rightBufferSize=rightBuffer.length;
+					rightBufferPtr=0;
 				}
 				else
-				{
-					Threadstate=1;
-					_dataTransferThread.resume();
-					while(Threadstate==1)
-					{
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							return dupdatasize-datasize;
-						}
-					}
-					rightBuffer=DataBufferArray.poll();
-					if(rightBuffer!=null)
-					{
-						rightBufferSize=rightBuffer.length;
-						rightBufferPtr=0;
-					}
-					else
-						return dupdatasize-datasize;
-				}
+					return dupdatasize-datasize;
 			}
+			datasize=datasize-(rightBufferSize-rightBufferPtr);
 		}
 		rightBufferPtr=rightBufferPtr+datasize;
 		return dupdatasize;
 	}
-	public byte[] read(int datasize)
+	public int read(byte[] data,int datasize)
 	{
-		byte[] rtv=new byte[datasize];
-		
+		if(data==null)
+			data=new byte[datasize];
 		int dupdatasize=datasize;
 		while(datasize>rightBufferSize-rightBufferPtr)
 		{
-			datasize=datasize-(rightBufferSize-rightBufferPtr);
-			rightBuffer=DataBufferArray.poll();
-			if(rightBuffer!=null)
+			if(rightBuffer!=null){
+				
+				//byte[] printbuffer=new byte[rightBufferSize-rightBufferPtr];
+				//System.arraycopy(rightBuffer, rightBufferPtr, printbuffer, 0,rightBufferSize-rightBufferPtr);
+				//System.out.println("+++++++++"+new String(printbuffer));
+				
+				System.arraycopy(rightBuffer, rightBufferPtr, data, dupdatasize-datasize,rightBufferSize-rightBufferPtr);
+				datasize=datasize-(rightBufferSize-rightBufferPtr);
+			}
+			if(QueueNumber>0)
 			{
-				rightBufferSize=rightBuffer.length;
-				rightBufferPtr=0;
+				rightBuffer=DataBufferArray.poll();
+				QueueNumber--;
+				if(rightBuffer!=null)
+				{
+					rightBufferSize=rightBuffer.length;
+					rightBufferPtr=0;
+				}
+				//else
+				//{
+				//	return dupdatasize-datasize;
+				//}
 			}
 			else
 			{
-				if(Threadstate==1)
+				_dataTransferThread.resume();
+				while(QueueNumber==0)
 				{
-					while(Threadstate==1)
-					{
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							//return dupdatasize-datasize;
-							return null;
-						}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						
+						return dupdatasize-datasize;
 					}
-					rightBuffer=DataBufferArray.poll();
-					if(rightBuffer!=null)
-					{
-						rightBufferSize=rightBuffer.length;
-						rightBufferPtr=0;
-					}
-					else
-						return null;
-						//return dupdatasize-datasize;
+				}
+				rightBuffer=DataBufferArray.poll();
+				QueueNumber--;
+				if(rightBuffer!=null)
+				{
+					rightBufferSize=rightBuffer.length;
+					rightBufferPtr=0;
 				}
 				else
 				{
-					Threadstate=1;
-					_dataTransferThread.resume();
-					while(Threadstate==1)
-					{
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							return null;
-							//return dupdatasize-datasize;
-						}
-					}
-					rightBuffer=DataBufferArray.poll();
-					if(rightBuffer!=null)
-					{
-						rightBufferSize=rightBuffer.length;
-						rightBufferPtr=0;
-					}
-					else
-						return null;
-						//return dupdatasize-datasize;
+					System.out.println("May not correct");
+					return dupdatasize-datasize;
 				}
 			}
 		}
+		//byte[] printbuffer=new byte[datasize];
+		//System.arraycopy(rightBuffer, rightBufferPtr, printbuffer, 0,datasize);
+		//System.out.println("+++++++++"+new String(printbuffer));
+		
+		System.arraycopy(rightBuffer, rightBufferPtr, data, dupdatasize-datasize,datasize);
 		rightBufferPtr=rightBufferPtr+datasize;
-		return null;
-		//return dupdatasize;
+		return dupdatasize;
 	}
 };
 

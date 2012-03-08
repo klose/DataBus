@@ -18,9 +18,10 @@ public class DATABUS {
 	public static final int GET_FILE_LOCATION=21;
 	public static final int INSERT_A_FILE=22;
 	public static final int GET_A_FILE=23;
-	public static final int FREE_A_FILE=24;
-	public static final int DELETE_A_FILE=25;
-	public static final int GET_FILE_SIZE=26;
+	public static final int SET_A_FILE=24;
+	public static final int FREE_A_FILE=25;
+	public static final int DELETE_A_FILE=26;
+	public static final int GET_FILE_SIZE=27;
 	
 	public static final int PUBSYS=50;
 	
@@ -39,13 +40,16 @@ public class DATABUS {
 	public static final long MAX_MEMORY_FOR_MESSAGE=1024*1024*1024*2;//2G
 	public static final long MAX_MEMORY_FOR_CHANNEL=1024*1024*1024*2;//2G
 	public static final long SWAP_GAP=256*1024*1024;
-	public static final int BUFFER_SIZE=1024*1024*10;
+	public static final int BUFFER_SIZE=10*1024*1024;
 	//Daemon使用
 	public static final String OUTBACKEND="inproc://BackendEndpoint";
 	public static final String INBACKEND="inproc://InBackEndpoint";
 	//KeyServer使用
 	public static final String KEYREQBACKEND="inproc://KeyReqBackEnd";
 	public static final String KEYPUBBACKEND="inproc://KeyPubBackEnd";
-	public static final String FILE_DATA_PATH="/tmp/binos-tmp";
+	public static final String FILE_DATA_PATH="/tmp/";
 	public static final int CHANNELDATANUBMER_MAX=1000;
+	public static String DSF_BEGIN="DSF_BEGIN";
+	public static String DSF_CURRENT="DSF_CURRENT";
+	public static String DSF_END="DSF_END";
 }

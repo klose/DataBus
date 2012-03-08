@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
@@ -285,14 +286,12 @@ public class DataMap {
 		ZMsg rtv=null;
 		Vector<ZMsg> MsgList=ChannelMap.get(key);
 		int[] offsetArray=ChannelSwapFileMap.get(key);
-		System.out.println("1");
 		if(MsgList!=null)
 		{
 			if(MsgList.size()>index)
 			{
 				rtv=MsgList.get(index);//.duplicate();
 				if(rtv!=null){
-					System.out.println("2");
 					return rtv;
 				}
 				else
@@ -309,29 +308,23 @@ public class DataMap {
 								DataInputStream InStream=new DataInputStream(in);
 								rtv=ZMsg.load(InStream);
 								in.close();
-								System.out.println("3");
 								return rtv;
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
-								System.out.println("4");
 								return null;
 							}
 						} catch (FileNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							System.out.println("5");
 							return null;
 						}
 					}
-					System.out.println("6");
 					return null;
 				}
 			}
-			System.out.println("7");
 			return null;
 		}
-		System.out.println("8");
 		return null;
 	};
 	private int storeChannelMessageToDisk(String key,ZMsg data,long datasize,int index)
@@ -414,7 +407,6 @@ public class DataMap {
 			{
 				ChannelDataSize+=datasize;
 				ZMsgArray.add(data);
-				//ChannelMap.put(key, ZMsgArray);
 				return 1;
 			}
 			else
@@ -448,13 +440,11 @@ public class DataMap {
 		if(MsgList==null)
 			return null;
 		int size=MsgList.size();
-		System.out.println("size of ZMsgList="+size);
 		for(int i=0;i<size;i++)
 		{
 			ZMsg tmp=getChannelData(key,i);
 			if(tmp!=null)
 			{
-				System.out.println("not null");
 				rtv=appendMsg(rtv,tmp);
 			}
 		}
@@ -516,17 +506,29 @@ public class DataMap {
 		return null;
 	}
 	//ZMsg list with number of frame;
-	public ZMsg getFileDataWithOffset(String key,long offset,long length)
+	public ZMsg getFileDataWithOffset(String key,int offset,int length)
 	{
 		String Location=FileMap.get(key);
 		if(Location!=null)
 		{
 			try {
-				FileInputStream in=new FileInputStream(Location);
+				File file=new File(Location);
+				if(!file.exists())
+					try {
+						file.createNewFile();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						return null;
+					}
+				FileInputStream in=new FileInputStream(file);
+				
 				byte[] data=null;
 				try {
-					data = new byte[(int)length];
-					in.read(data, (int)offset, (int)length);
+					data = new byte[length];
+					in.skip(offset);
+					in.read(data, 0, length);
+					in.close();
 					ZMsg rtv=new ZMsg();
 					rtv.addLast(data);
 					return rtv;
@@ -564,8 +566,13 @@ public class DataMap {
 		if(filepath!=null)
 		{
 			try{
-				FileOutputStream out=new FileOutputStream(filepath);
-				out.write(data.pop().getData(), (int)offset, (int)length);
+				File file=new File(filepath);
+				if(!file.exists())
+					file.createNewFile();
+				RandomAccessFile raf = new RandomAccessFile(file, "rw");
+				raf.seek(offset);
+				raf.write(data.pop().getData(),0, (int)length);
+				raf.close();
 			}catch(FileNotFoundException e)
 			{
 				e.printStackTrace();

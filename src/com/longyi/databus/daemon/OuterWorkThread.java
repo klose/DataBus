@@ -98,11 +98,30 @@ public class OuterWorkThread extends Thread{
 	            			}
 	            			break;
 	            		}
+	            	case DATABUS.SET_A_FILE:
+		            	{
+		            		String key=RequestMsg.pop().toString();
+	            			long offset=Integer.parseInt(RequestMsg.pop().toString());
+	            			long length=Integer.parseInt(RequestMsg.pop().toString());
+	            			ZMsg data=RequestMsg;
+	            			int rtv=dataMap.storeOtherNodeFile(key, data, offset, length);
+	            			if(rtv==1)
+	            			{
+	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+	            				BackMsg.send(worker);
+	            			}
+	            			else
+	            			{
+	            				BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            				BackMsg.send(worker);
+	            			}
+	            			break;
+		            	}
 	            	case DATABUS.GET_A_FILE:
 		            	{
 	            			String key=RequestMsg.pop().toString();
-	            			long offset=Integer.parseInt(RequestMsg.pop().toString());
-	            			long length=Integer.parseInt(RequestMsg.pop().toString());
+	            			int offset=Integer.parseInt(RequestMsg.pop().toString());
+	            			int length=Integer.parseInt(RequestMsg.pop().toString());
 	            			ZMsg rtv=dataMap.getFileDataWithOffset(key,offset,length);
 	            			if(rtv!=null){//数据在本地
 	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));

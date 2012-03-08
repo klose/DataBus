@@ -11,20 +11,30 @@ public class ChannelOutputStream {
 	private int InputPtr;
 	private DataBusAPI dataBusAPI=null;
 	
-	ChannelOutputStream(String _ChannelName)
+	public ChannelOutputStream(String _ChannelName)
 	{
 		InputPtr=0;
 		DataBuffer=new byte[DATABUS.BUFFER_SIZE];
 		ChannelName=_ChannelName;
 		dataBusAPI=new DataBusAPI();
 	};
+	public void flush()
+	{
+		byte[] SendArray=new byte[InputPtr];
+		System.arraycopy(DataBuffer, 0, SendArray, 0, InputPtr);
+		dataBusAPI.sendDataToChannel(ChannelName,SendArray);
+		DataBuffer=new byte[DATABUS.BUFFER_SIZE];
+		InputPtr=0;
+	};
 	public int write(byte[] data,int datasize)
 	{
 		int i=0;
-		for(i=0;i<datasize;i=i+DATABUS.BUFFER_SIZE-InputPtr)
+		int tmpSendSize=0;
+		for(i=0;i<datasize;i=i+tmpSendSize)
 		{
 			if(datasize-i>=DATABUS.BUFFER_SIZE-InputPtr)
-			{	
+			{
+				tmpSendSize=DATABUS.BUFFER_SIZE-InputPtr;
 				System.arraycopy(data, i, DataBuffer, InputPtr, DATABUS.BUFFER_SIZE-InputPtr);
 				if(dataBusAPI.sendDataToChannel(ChannelName,DataBuffer)<0)
 					return -1;
@@ -33,6 +43,7 @@ public class ChannelOutputStream {
 			}
 			else
 			{
+				tmpSendSize=datasize-i;
 				System.arraycopy(data, i, DataBuffer, InputPtr, datasize-i);
 				InputPtr=InputPtr+datasize-i;
 			}

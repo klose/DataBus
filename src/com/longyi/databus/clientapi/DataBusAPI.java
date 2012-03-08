@@ -276,7 +276,26 @@ public class DataBusAPI {
 		else
 			return null;
 	}
-	
+	public int setFileData(String key,byte[] data,int begin,int length)
+	{
+		ZMsg SendMsg=new ZMsg();
+		
+		SendMsg.addLast(Integer.toString(DATABUS.SET_A_FILE));
+		SendMsg.addLast(key);
+		SendMsg.addLast(Integer.toString(begin));
+		SendMsg.addLast(Integer.toString(length));
+		SendMsg.addLast(data);
+		ZMsg Recvmsg=SendRequest(SendMsg);
+		ZFrame FirstFrame=Recvmsg.pop();
+		String BackString =new String(FirstFrame.getData());
+		if(Integer.parseInt(BackString)==DATABUS.SUCCESSFULLY)
+		{
+			return 1;
+		}
+		else
+			return -1;
+		
+	}
 	public int getFileSize(String key)
 	{
 		ZMsg SendMsg = new ZMsg();
@@ -328,19 +347,16 @@ public class DataBusAPI {
 		else
 			return -1;
 	}
-	
+	/*
 	public static void main(String[] args)
 	{
 		DataBusAPI _dataApi=new DataBusAPI();
-		//String data="hahha";
-		//
 		
 		byte[] data=new byte[255*1024*1024];
 		_dataApi.sendMessage("love", data);
 		long start = System.currentTimeMillis();
 		byte[] result=_dataApi.getMessage("love");
-		//System.out.println(result.length);
-		//System.out.println(new String(result));
+		
 		{
 			byte[] result1=_dataApi.getMessage("love");
 			//System.out.println(result1.length);
@@ -366,4 +382,5 @@ public class DataBusAPI {
 		
 		//
 	}
+	*/
 };
