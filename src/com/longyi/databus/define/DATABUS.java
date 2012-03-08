@@ -34,7 +34,7 @@ public class DATABUS {
 
 	
 	public static final String LOCAL_CPP_DAEMON_ENDPOINT="tcp://127.0.0.1:56432";
-	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="inproc://";
+	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="ipc://";
 	public static final int ENDPOINT_PORT = 56432;
 	
 	public static final long MAX_MEMORY_FOR_MESSAGE=1024*1024*1024*2;//2G

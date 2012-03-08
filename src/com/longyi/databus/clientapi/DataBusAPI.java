@@ -1,6 +1,9 @@
 package com.longyi.databus.clientapi;
 import com.longyi.databus.define.*;
 import com.longyi.databus.daemon.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -125,14 +128,12 @@ public class DataBusAPI {
 			return SecondFrame.getData();
 		}
 		else
-		{
-			System.out.println("Get message failed");
-			byte[] tmp=null;
-			return tmp;
+		{	
+			return null;
 		}
 	};
 	
-	public int sendDataToChannel(String ChannelName,byte[] data)
+	public int sendDataToChannel(String ChannelName, byte[] data)
 	{
 		ZMsg SendMsg = new ZMsg();
 		SendMsg.addLast(Integer.toString(DATABUS.SEND_TO_CHANNEL));
@@ -148,7 +149,24 @@ public class DataBusAPI {
 		else
 			return -1;
 	};
-	public byte[] getDataFromChannel(String ChanneName,int index)
+	public int sendDataToChannelMany(String ChannelName,List<byte[]> data)
+	{
+		ZMsg SendMsg = new ZMsg();
+		SendMsg.addLast(Integer.toString(DATABUS.SEND_TO_CHANNEL));
+	    SendMsg.addLast(ChannelName);
+		for (byte[] tmp: data) {
+			SendMsg.addLast(tmp);
+		}
+		ZMsg Recvmsg=SendRequest(SendMsg);	
+		String BackString=Recvmsg.pop().toString();
+		if(Integer.parseInt(BackString)==DATABUS.SUCCESSFULLY)
+			return 1;
+		else if(Integer.parseInt(BackString)==DATABUS.FAILED)
+			return 0;
+		else
+			return -1;
+	}
+	public List<byte[]> getDataFromChannel(String ChanneName,int index)
 	{
 		ZMsg SendMsg=new ZMsg();
 		SendMsg.addLast(Integer.toString(DATABUS.GET_FROM_CHANNEL_BY_INDEX));
@@ -160,25 +178,21 @@ public class DataBusAPI {
 		String BackString=new String(FirstFrame.getData());
 		if(Integer.parseInt(BackString)==DATABUS.SUCCESSFULLY)
 		{
-			byte[] rtv=new byte[(int) Recvmsg.contentSize()];
+			List<byte[]> rtv=new ArrayList<byte[]>();
 			int NumberofFrame=Recvmsg.size();
-			int length=0;
 			for(int i=0;i<NumberofFrame;i++)
 			{
-				ZFrame DataFrame=Recvmsg.pop();
-				int datasize=DataFrame.size();
-				System.arraycopy(DataFrame.getData(), 0, rtv,length,datasize);
-				length+=datasize;
+				rtv.add(Recvmsg.pop().getData());
 			}
 			return rtv;
 		}
 		else
 		{
-			byte[] tmp=null;
+			List<byte[]> tmp=new ArrayList<byte[]>();
 			return tmp;
 		}
 	};
-	public byte[] getALLDataFromChannel(String ChanneName)
+	public List<byte[]> getALLDataFromChannel(String ChanneName)
 	{
 		ZMsg SendMsg=new ZMsg();
 		SendMsg.addLast(Integer.toString(DATABUS.GET_FROM_CHANNEL));
@@ -189,21 +203,17 @@ public class DataBusAPI {
 		String BackString=new String(FirstFrame.getData());
 		if(Integer.parseInt(BackString)==DATABUS.SUCCESSFULLY)
 		{
-			byte[] rtv=new byte[(int) Recvmsg.contentSize()];
+			List<byte[]> rtv=new ArrayList<byte[]>();
 			int NumberofFrame=Recvmsg.size();
-			int length=0;
 			for(int i=0;i<NumberofFrame;i++)
 			{
-				ZFrame DataFrame=Recvmsg.pop();
-				int datasize=DataFrame.size();
-				System.arraycopy(DataFrame.getData(), 0, rtv,length,datasize);
-				length+=datasize;
+				rtv.add(Recvmsg.pop().getData());
 			}
 			return rtv;
 		}
 		else
 		{
-			byte[] tmp=null;
+			List<byte[]> tmp=new ArrayList<byte[]>();
 			return tmp;
 		}
 	};

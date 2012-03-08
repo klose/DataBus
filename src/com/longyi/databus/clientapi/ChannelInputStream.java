@@ -1,4 +1,5 @@
 package com.longyi.databus.clientapi;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 public class ChannelInputStream {
@@ -8,14 +9,14 @@ public class ChannelInputStream {
 		{
 			while(state)
 			{
-				byte[] channelData=dataBusAPI.getDataFromChannel(ChannelName, MsgIndex);
+				List<byte[]> channelData=dataBusAPI.getDataFromChannel(ChannelName, MsgIndex);
 				
 				if(channelData!=null)
 				{
 					//System.out.println("AutoMaticget Data");
 					MsgIndex++;
 					//System.out.println(MsgIndex+" data="+(new String(channelData)));
-					DataBufferArray.add(channelData);
+//					DataBufferArray.add(channelData);
 					QueueNumber++;
 				}
 				else
