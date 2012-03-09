@@ -23,6 +23,15 @@ public class DATABUS {
 	public static final int DELETE_A_FILE=26;
 	public static final int GET_FILE_SIZE=27;
 	
+	
+	public static final int JOB_INSERT=31;
+	public static final int JOB_INSERT_PATION_LOCATION=32;
+	public static final int JOB_GET_PATION_LIST=33;
+	public static final int JOB_GET_PATION_LOCATION_LIST=34;
+	public static final int JOB_GET_KEY_LIST=35;
+	public static final int JOB_GET_KEY_BYTE=36;
+	public static final int JOB_GET_KEY_OBJECT=37;
+	
 	public static final int PUBSYS=50;
 	
 	public static final int SUCCESSFULLY=100;
@@ -34,7 +43,7 @@ public class DATABUS {
 
 	
 	public static final String LOCAL_CPP_DAEMON_ENDPOINT="tcp://127.0.0.1:56432";
-	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="ipc://";
+	public static final String LOCAL_JAVA_DAEMON_ENDPOINT="inproc://";
 	public static final int ENDPOINT_PORT = 56432;
 	
 	public static final long MAX_MEMORY_FOR_MESSAGE=1024*1024*1024*2;//2G
@@ -49,7 +58,10 @@ public class DATABUS {
 	public static final String KEYPUBBACKEND="inproc://KeyPubBackEnd";
 	public static final String FILE_DATA_PATH="/tmp/";
 	public static final int CHANNELDATANUBMER_MAX=1000;
-	public static String DSF_BEGIN="DSF_BEGIN";
-	public static String DSF_CURRENT="DSF_CURRENT";
-	public static String DSF_END="DSF_END";
+	public static final String DSF_BEGIN="DSF_BEGIN";
+	public static final String DSF_CURRENT="DSF_CURRENT";
+	public static final String DSF_END="DSF_END";
+	public static final String JOB_UPDATE_END="inproc://JobUpdateEnd";
+	public static final boolean JOB_VALUE_BYTE=true;
+	public static final boolean JOB_VALUE_OBJECT=false;
 }

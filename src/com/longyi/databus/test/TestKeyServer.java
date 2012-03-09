@@ -7,4 +7,4 @@ public class TestKeyServer {
 		KeyServerMain main = new KeyServerMain() ;
 		main.start();
 	}
-};
+}

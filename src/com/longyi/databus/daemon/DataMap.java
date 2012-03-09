@@ -275,6 +275,7 @@ public class DataMap {
 		else
 		{
 			MessageDataSize=MessageDataSize-rtv.contentSize();
+			MessageMap.get(key).destroy();
 			MessageMap.remove(key);
 			return 1;
 		}
@@ -458,8 +459,10 @@ public class DataMap {
 		{
 			int MsgListSize=MsgList.size();
 			for(int i=0;i<MsgListSize;i++)
-				if(MsgList.get(i)!=null)
+				if(MsgList.get(i)!=null){
 					ChannelDataSize=ChannelDataSize-MsgList.get(i).contentSize();
+					MsgList.get(i).destroy();
+				}
 			ChannelMap.remove(key);
 			int[] offsetArray=ChannelSwapFileMap.get(key);
 			if(offsetArray!=null)

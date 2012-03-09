@@ -46,6 +46,109 @@ public class KeyServerWorkThread extends Thread{
 	            	
 	            	switch(UpdateName)
 	            	{
+	            	case DATABUS.JOB_INSERT:
+	            	{
+	            		String JobId=UpdateMsg.pop().toString();
+	            		String PartionId=UpdateMsg.pop().toString();
+	            		String key=UpdateMsg.pop().toString();
+	            		JobHashMapInfo _tmpJob=KeyServerMain.JobMap.get(JobId);
+            			if(_tmpJob!=null)
+            				_tmpJob.Insert(PartionId, key);
+            			else
+            			{
+            				_tmpJob=new JobHashMapInfo(JobId);
+            				_tmpJob.Insert(PartionId, key);
+            			}
+	            		
+            			BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+            			BackMsg.send(worker);
+            			//PubMsg.send(pubsoc);
+            			break;
+	            	}
+	            	case DATABUS.JOB_INSERT_PATION_LOCATION:
+	            	{
+	            		String JobId=UpdateMsg.pop().toString();
+	            		String PartionId=UpdateMsg.pop().toString();
+	            		String Location=UpdateMsg.pop().toString();
+	            		JobHashMapInfo _tmpJob=KeyServerMain.JobMap.get(JobId);
+            			if(_tmpJob!=null)
+            				_tmpJob.InsertPartionLocation(PartionId, Location);
+            			else
+            			{
+            				_tmpJob=new JobHashMapInfo(JobId);
+            				_tmpJob.InsertPartionLocation(PartionId, Location);
+            			}
+	            		
+            			BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+            			BackMsg.send(worker);
+            			//PubMsg.send(pubsoc);
+            			break;
+	            	}
+	            	case DATABUS.JOB_GET_PATION_LIST:
+	            	{
+	            		String JobId=UpdateMsg.pop().toString();
+	            		JobHashMapInfo _tmpJob=KeyServerMain.JobMap.get(JobId);
+            			String rtv=null;
+	            		if(_tmpJob!=null)
+	            		{
+	            			rtv=_tmpJob.getPartionList();
+	            			if(rtv!=null)
+	            			{
+	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+	            				BackMsg.addLast(rtv);
+	            			}
+	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            		}
+	            		else
+	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+            			BackMsg.send(worker);
+            			//PubMsg.send(pubsoc);
+            			break;
+	            	}
+	            	case DATABUS.JOB_GET_PATION_LOCATION_LIST:
+	            	{
+	            		String JobId=UpdateMsg.pop().toString();
+	            		String PartionId=UpdateMsg.pop().toString();
+	            		JobHashMapInfo _tmpJob=KeyServerMain.JobMap.get(JobId);
+            			String rtv=null;
+	            		if(_tmpJob!=null)
+	            		{
+	            			rtv=_tmpJob.getPartionLocationList(PartionId);
+	            			if(rtv!=null)
+	            			{
+	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+	            				BackMsg.addLast(rtv);
+	            			}
+	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            		}
+	            		else
+	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+            			BackMsg.send(worker);
+            			//PubMsg.send(pubsoc);
+            			break;
+	            	}
+	            	case DATABUS.JOB_GET_KEY_LIST:
+	            	{
+	            		String JobId=UpdateMsg.pop().toString();
+	            		String PartionId=UpdateMsg.pop().toString();
+	            		JobHashMapInfo _tmpJob=KeyServerMain.JobMap.get(JobId);
+            			String rtv=null;
+	            		if(_tmpJob!=null)
+	            		{
+	            			rtv=_tmpJob.getKeyList(PartionId);
+	            			if(rtv!=null)
+	            			{
+	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+	            				BackMsg.addLast(rtv);
+	            			}
+	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            		}
+	            		else
+	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+            			BackMsg.send(worker);
+            			//PubMsg.send(pubsoc);
+            			break;
+	            	}
 	            	case DATABUS.SEND_MESSAGE:
 	            		{
 	            			String key=UpdateMsg.pop().toString();

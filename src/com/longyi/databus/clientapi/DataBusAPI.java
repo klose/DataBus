@@ -153,11 +153,11 @@ public class DataBusAPI {
 	{
 		ZMsg SendMsg = new ZMsg();
 		SendMsg.addLast(Integer.toString(DATABUS.SEND_TO_CHANNEL));
-	    SendMsg.addLast(ChannelName);
+		SendMsg.addLast(ChannelName);
 		for (byte[] tmp: data) {
 			SendMsg.addLast(tmp);
 		}
-		ZMsg Recvmsg=SendRequest(SendMsg);	
+		ZMsg Recvmsg=SendRequest(SendMsg);
 		String BackString=Recvmsg.pop().toString();
 		if(Integer.parseInt(BackString)==DATABUS.SUCCESSFULLY)
 			return 1;

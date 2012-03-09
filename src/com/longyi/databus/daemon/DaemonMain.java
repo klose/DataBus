@@ -12,7 +12,7 @@ import org.zeromq.ZMsg;
 
 import com.longyi.databus.define.DATABUS;
 import com.longyi.databus.define.GetLocalIpAddress;
-
+import com.longyi.databus.daemon.DataMap;
 public class DaemonMain extends Thread{
 
 	public static String LocalEndpoint;
@@ -74,7 +74,6 @@ public class DaemonMain extends Thread{
 		ToKeyServerSoc=context.socket(ZMQ.REQ);
 		ToKeyServerSoc.connect(KeyServerEndpoint);
 		InnerSoc=context.socket(ZMQ.ROUTER);
-//		InnerSoc.bind(DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT);
 		InnerSoc.bind(DATABUS.LOCAL_JAVA_DAEMON_ENDPOINT + LocalIpAddress.substring(LocalIpAddress.length()-2) + ":" + DATABUS.ENDPOINT_PORT);
 		OuterSoc=context.socket(ZMQ.ROUTER);
 		OuterSoc.bind(LocalEndpoint);
@@ -86,6 +85,8 @@ public class DaemonMain extends Thread{
 		InReqThread.start();
 		Thread OutReqThread = new Thread(new ZMQQueue(context, InnerSoc, InbackendSoc));
 		OutReqThread.start();
+		Thread _updateThread=new UpdateToKeyServerThread();
+		_updateThread.start();
 	}
 	
 	private static boolean getAllInfoFromKeyServer()

@@ -13,6 +13,7 @@ public class KeyServerMain extends Thread{
 	public static final HashMap<String,String> MessageMap=new HashMap<String,String>();
 	public static final HashMap<String,String> ChannelMap=new HashMap<String,String>();
 	public static final HashMap<String,String> FileMap=new HashMap<String,String>();
+	public static final HashMap<String,JobHashMapInfo> JobMap=new HashMap<String,JobHashMapInfo>();
 	private static Context context;
 	private static ZMQ.Socket pubSoc;
 	private static ZMQ.Socket reqSoc;
