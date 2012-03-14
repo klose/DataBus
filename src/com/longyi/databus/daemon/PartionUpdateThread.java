@@ -30,7 +30,7 @@ public class PartionUpdateThread extends Thread {
 			this.Location=Location;
 			this._keyList=_keyList;
 			backSoc=context.socket(ZMQ.PUSH);
-			backSoc.connect("inproc://"+partionId+":13");
+			backSoc.connect("inproc://"+jobId+partionId+":13");
 		}
 		public void run()
 		{
@@ -65,10 +65,6 @@ public class PartionUpdateThread extends Thread {
 							}
 							_tmpJobDataMap.putkeyByte(partionId, _keyList.get(i),backList);
 						}
-						else
-						{
-							System.out.println("shitdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
-						}
 					}
 					else
 					{
@@ -81,22 +77,16 @@ public class PartionUpdateThread extends Thread {
 							}
 							_tmpJobDataMap.putkeyObject(partionId, _keyList.get(i), backList);
 						}
-						else
-						{
-							System.out.println("shitdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
-						}
 					}
 				}
 				ZMsg SendToMasterThread=new ZMsg();
 				SendToMasterThread.addLast(_keyList.get(i));
-				//SendToMasterThread.addLast(Location);
+				
 				SendToMasterThread.send(backSoc);
-				//System.out.println("heihie");
 			}
 		}
 	}
 	private static Context context=DATABUS.context;
-	//private static final HashMap<String,ZMQ.Socket> OuterServerMap=new HashMap<String,ZMQ.Socket>();
 	private Socket _socketToTask=null;
 	private Socket _RecFromThread=null;
 	private String jobId;
@@ -118,11 +108,11 @@ public class PartionUpdateThread extends Thread {
 		ThreadState=true;
 		state=new int[_keyList.size()];
 		_RecFromThread=context.socket(ZMQ.PULL);
-		_RecFromThread.bind("inproc://"+partionId+":13");
+		_RecFromThread.bind("inproc://"+jobId + partionId+":13");
 		_socketToTask=context.socket(ZMQ.PUSH);
-		_socketToTask.bind("inproc://"+partionId);
+		_socketToTask.bind("inproc://"+ jobId + partionId);
 		_socketRecvTask=context.socket(ZMQ.PULL);
-		_socketRecvTask.connect("inproc://"+partionId);
+		_socketRecvTask.connect("inproc://"+ jobId + partionId);
 		for(int i=0;i<Location.length;i++)
 		{
 			//System.out.println(Location[i]);
