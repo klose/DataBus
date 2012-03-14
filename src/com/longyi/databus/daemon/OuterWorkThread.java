@@ -10,7 +10,6 @@ import org.zeromq.ZMsg;
 import org.zeromq.ZMQ.Context;
 
 import com.longyi.databus.define.DATABUS;
-import com.longyi.databus.define.ValueObject;
 
 public class OuterWorkThread extends Thread{
 	private Context context;
@@ -55,17 +54,27 @@ public class OuterWorkThread extends Thread{
 	            	{
 	            	case DATABUS.JOB_GET_KEY_BYTE:
 	            	{
+	            		//System.out.println("adasd");
 	            		String jobId=RequestMsg.pop().toString();
 	            		String partionId=RequestMsg.pop().toString();
 	            		String key=RequestMsg.pop().toString();
 	            		JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,DATABUS.JOB_VALUE_BYTE);
-	            		BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+	            		
 	            		List<byte[]> rtvValue=_tmpJobDataMap.getkeyByte(partionId, key);
-	            		for(byte[] tmp:rtvValue)
-	            		{
-	            			BackMsg.addFirst(tmp);
-	            		}
+	            		
+	            		if(rtvValue!=null){//数据在本地
+	            			BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+	            			for(byte[] tmp:rtvValue)
+		            		{
+		            			BackMsg.addLast(tmp);
+		            		}
+            			}
+            			else//数据不在本地
+            			{
+	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+            			}
 	            		BackMsg.send(worker);
+	            		break;
 	            	}
 	            	case DATABUS.JOB_GET_KEY_OBJECT:
 	            	{
@@ -74,13 +83,22 @@ public class OuterWorkThread extends Thread{
 	            		String key=RequestMsg.pop().toString();
 	            		
 	            		JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,DATABUS.JOB_VALUE_OBJECT);
-	            		BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
-	            		List<ValueObject> rtvValue=_tmpJobDataMap.getkeyObject(partionId, key);
-	            		for(ValueObject tmp:rtvValue)
+	            		
+	            		List<Object> rtvValue=_tmpJobDataMap.getkeyObject(partionId, key);
+	            		if(rtvValue!=null)
 	            		{
-	            			BackMsg.addFirst(tmp.getBytes());
+	            			BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+		            		for(Object tmp:rtvValue)
+		            		{
+		            			BackMsg.addLast(JobDataMap.getObjectToBytes(tmp));
+		            		}
 	            		}
+		            	else
+		            	{
+		            		BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+		            	}
 	            		BackMsg.send(worker);
+	            		break;
 	            	}
 	            	case DATABUS.GET_MESSAGE:
 		            	{

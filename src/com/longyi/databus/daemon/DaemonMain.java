@@ -68,7 +68,7 @@ public class DaemonMain extends Thread{
 		if(LocalIpAddress==null)
 			System.out.println("Cat get local ip address");
 		
-		LocalEndpoint="tcp://"+LocalIpAddress+":9987";
+		LocalEndpoint="tcp://"+LocalIpAddress+":9988";
 		//固定地址
 		
 		ToKeyServerSoc=context.socket(ZMQ.REQ);
@@ -85,8 +85,8 @@ public class DaemonMain extends Thread{
 		InReqThread.start();
 		Thread OutReqThread = new Thread(new ZMQQueue(context, InnerSoc, InbackendSoc));
 		OutReqThread.start();
-		Thread _updateThread=new UpdateToKeyServerThread();
-		_updateThread.start();
+		//Thread _updateThread=new UpdateToKeyServerThread();
+		//_updateThread.start();
 	}
 	
 	private static boolean getAllInfoFromKeyServer()

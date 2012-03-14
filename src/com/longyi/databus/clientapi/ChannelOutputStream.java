@@ -1,5 +1,5 @@
 package com.longyi.databus.clientapi;
-
+import com.longyi.databus.define.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.zeromq.*;
-
-import com.longyi.databus.define.DATABUS;
 public class ChannelOutputStream {
 	private String ChannelName=null;
 	private byte[] DataBuffer=null;

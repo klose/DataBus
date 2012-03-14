@@ -55,9 +55,10 @@ public class KeyServerMain extends Thread{
 		ReqThread.start();
         Thread PubThread = new Thread(new ZMsgForThread(context, pubbackendSoc,pubSoc));
         PubThread.start();		
-		for(int i=0;i<5;i++){
+		for(int i=0;i<1;i++){
 			KeyServerWorkThread _workThread=new KeyServerWorkThread(context);
 			_workThread.start();
+			System.out.println("Thread I start"+i);
 		}
 		
 		while(!Thread.currentThread().isInterrupted())

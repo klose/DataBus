@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.longyi.databus.daemon.DataMapForJob;
 import com.longyi.databus.daemon.JobDataMap;
-import com.longyi.databus.define.ValueObject;
 
 public class TaskOutput {
 	private JobDataMap jobDataMap=null;
@@ -13,7 +12,7 @@ public class TaskOutput {
 	{
 		jobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType);
 	}
-	public boolean putkeyObject(String partId,String key,List<ValueObject> value)
+	public boolean putkeyObject(String partId,String key,List<Object> value)
 	{
 		return jobDataMap.putkeyObject(partId,key,value);
 	}

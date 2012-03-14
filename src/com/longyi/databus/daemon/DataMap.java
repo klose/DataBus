@@ -181,7 +181,7 @@ public class DataMap {
 		try {
 			UUID fileid=UUID.randomUUID();
 			String Filepath=DATABUS.FILE_DATA_PATH+"/Message/"+fileid.toString();
-			System.out.println(Filepath);
+			//System.out.println(Filepath);
 			File file=new File(Filepath);
 			if(!file.exists())
 				try {
@@ -189,7 +189,7 @@ public class DataMap {
 				} catch (IOException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
-					System.out.println("Can not create file");
+					//System.out.println("Can not create file");
 					return -1;
 				}
 			FileOutputStream Out=new FileOutputStream(file);
@@ -223,7 +223,7 @@ public class DataMap {
 		String MessageLocation=MessageSwapFileMap.get(key);
 		if(rtv==null&&MessageLocation==null)
 		{
-			if(datasize<=DATABUS.SWAP_GAP)
+			if(datasize<=DATABUS.SWAP_GAP&&MessageDataSize+datasize<DATABUS.MAX_MEMORY_FOR_MESSAGE)
 			{
 				MessageDataSize+=datasize;
 				MessageMap.put(key, data);
@@ -237,7 +237,7 @@ public class DataMap {
 		else if(rtv!=null)//同样的key第二次插入时，自动替换以前的数据
 		{
 			MessageDataSize=MessageDataSize-rtv.contentSize();
-			if(datasize<=DATABUS.SWAP_GAP)
+			if(datasize<=DATABUS.SWAP_GAP&&MessageDataSize+datasize<DATABUS.MAX_MEMORY_FOR_MESSAGE)
 			{
 				MessageDataSize+=datasize;
 				MessageMap.put(key, data);
@@ -386,7 +386,7 @@ public class DataMap {
 		
 		if(ZMsgArray==null&&offsetArray==null)
 		{
-			if(datasize<=DATABUS.SWAP_GAP)
+			if(datasize<=DATABUS.SWAP_GAP&&ChannelDataSize+datasize<DATABUS.MAX_MEMORY_FOR_CHANNEL)
 			{
 				ZMsgArray=new Vector<ZMsg>();
 				ChannelDataSize+=datasize;
@@ -404,7 +404,7 @@ public class DataMap {
 		}
 		else if(ZMsgArray!=null)
 		{
-			if(datasize<=DATABUS.SWAP_GAP)
+			if(datasize<=DATABUS.SWAP_GAP&&ChannelDataSize+datasize<DATABUS.MAX_MEMORY_FOR_CHANNEL)
 			{
 				ChannelDataSize+=datasize;
 				ZMsgArray.add(data);

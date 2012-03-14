@@ -6,7 +6,6 @@ import java.util.List;
 import com.longyi.databus.daemon.DataMapForJob;
 import com.longyi.databus.daemon.JobDataMap;
 import com.longyi.databus.daemon.PartionUpdateThread;
-import com.longyi.databus.define.ValueObject;
 
 public class TaskInput {
 	private JobDataMap jobDataMap=null;
@@ -14,7 +13,7 @@ public class TaskInput {
 	{
 		jobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType);
 	}
-	public List<ValueObject> getkeyObject(String partId,String key)
+	public List<Object> getkeyObject(String partId,String key)
 	{
 		return jobDataMap.getkeyObject(partId,key);
 	}
@@ -25,6 +24,10 @@ public class TaskInput {
 	public ArrayList<String> getkeyList(String partId)
 	{
 		return jobDataMap.getkeyList(partId);
+	}
+	public String[] getPartionLocation(String partId)
+	{
+		return jobDataMap.getPartionLocation(partId);
 	}
 	public PartionUpdateThread update(String partId)
 	{

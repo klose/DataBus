@@ -10,18 +10,18 @@ import com.longyi.databus.define.DATABUS;
 
 public class KeyServerWorkThread extends Thread{
 	private Context context;
-    private final ZMQ.Poller poller;
+    //private final ZMQ.Poller poller;
 	private final ZMQ.Socket worker;
 	private final ZMQ.Socket pubsoc;
 	KeyServerWorkThread(Context _context)
 	{
 		context=_context;
-		this.poller = context.poller(1);
+		//this.poller = context.poller(1);
         worker=context.socket(ZMQ.DEALER);
 		worker.connect(DATABUS.KEYREQBACKEND);
 		pubsoc=context.socket(ZMQ.PUSH);
 		pubsoc.connect(DATABUS.KEYPUBBACKEND);
-		this.poller.register(worker, ZMQ.Poller.POLLIN);
+		//this.poller.register(worker, ZMQ.Poller.POLLIN);
 	}
 	@Override
 	public void run()
@@ -29,21 +29,24 @@ public class KeyServerWorkThread extends Thread{
 		while(!Thread.currentThread().isInterrupted())
 		{
 			try{
-				if (poller.poll() < 1) {
-                    continue;
-                }
+				//if (poller.poll(25000) < 1) {
+                //    continue;
+               // }
 
 				// process a request
-	            if (poller.pollin(0))
+	            //if (poller.pollin(0))
+	            //{
+	            	
+	            ZMsg UpdateMsg=ZMsg.recvMsg(worker);
+	            if(UpdateMsg!=null)
 	            {
-	            	
-	            	ZMsg UpdateMsg=ZMsg.recvMsg(worker);
-	            	
 	            	ZMsg BackMsg=new ZMsg();
+	            	
 	            	BackMsg.wrap(UpdateMsg.unwrap());
 	            	ZMsg PubMsg=UpdateMsg.duplicate();
 	            	int UpdateName=Integer.parseInt(UpdateMsg.pop().toString());
-	            	
+	            	//System.out.println("=======================================================================");
+	            	//System.out.println("========================================"+UpdateName);
 	            	switch(UpdateName)
 	            	{
 	            	case DATABUS.JOB_INSERT:
@@ -52,16 +55,18 @@ public class KeyServerWorkThread extends Thread{
 	            		String PartionId=UpdateMsg.pop().toString();
 	            		String key=UpdateMsg.pop().toString();
 	            		JobHashMapInfo _tmpJob=KeyServerMain.JobMap.get(JobId);
+	            		//System.out.println("Job_insert" + key + ":"  + PartionId);
             			if(_tmpJob!=null)
             				_tmpJob.Insert(PartionId, key);
             			else
             			{
             				_tmpJob=new JobHashMapInfo(JobId);
             				_tmpJob.Insert(PartionId, key);
+            				KeyServerMain.JobMap.put(JobId, _tmpJob);
             			}
 	            		
-            			BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
-            			BackMsg.send(worker);
+            			//BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+            			//BackMsg.send(worker);
             			//PubMsg.send(pubsoc);
             			break;
 	            	}
@@ -77,10 +82,11 @@ public class KeyServerWorkThread extends Thread{
             			{
             				_tmpJob=new JobHashMapInfo(JobId);
             				_tmpJob.InsertPartionLocation(PartionId, Location);
+            				KeyServerMain.JobMap.put(JobId, _tmpJob);
             			}
 	            		
-            			BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
-            			BackMsg.send(worker);
+            			//BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
+            			//BackMsg.send(worker);
             			//PubMsg.send(pubsoc);
             			break;
 	            	}
@@ -91,16 +97,25 @@ public class KeyServerWorkThread extends Thread{
             			String rtv=null;
 	            		if(_tmpJob!=null)
 	            		{
+	            			//System.out.println("JOB_GET_PATION_LIST 1");
 	            			rtv=_tmpJob.getPartionList();
 	            			if(rtv!=null)
 	            			{
+	            				//System.out.println("JOB_GET_PATION_LIST 2");
 	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
 	            				BackMsg.addLast(rtv);
 	            			}
-	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            			else
+	            			{
+		            			//System.out.println("JOB_GET_PATION_LIST 3");
+		            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            			}
 	            		}
 	            		else
+	            		{
+	            			//System.out.println("JOB_GET_PATION_LIST 4");
 	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            		}
             			BackMsg.send(worker);
             			//PubMsg.send(pubsoc);
             			break;
@@ -113,38 +128,57 @@ public class KeyServerWorkThread extends Thread{
             			String rtv=null;
 	            		if(_tmpJob!=null)
 	            		{
+	            			//System.out.println("JOB_GET_PATION_LOCATION_LIST 1");
 	            			rtv=_tmpJob.getPartionLocationList(PartionId);
 	            			if(rtv!=null)
 	            			{
+	            				//System.out.println("JOB_GET_PATION_LOCATION_LIST 2");
 	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
 	            				BackMsg.addLast(rtv);
 	            			}
-	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            			else
+	            			{
+		            			//System.out.println("JOB_GET_PATION_LOCATION_LIST 3");
+		            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            			}
 	            		}
 	            		else
+	            		{
 	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            			//System.out.println("JOB_GET_PATION_LOCATION_LIST 4");
+	            		}
             			BackMsg.send(worker);
             			//PubMsg.send(pubsoc);
             			break;
 	            	}
 	            	case DATABUS.JOB_GET_KEY_LIST:
 	            	{
+	            		System.out.println("JOB_GET_KEY_LIST"+"================");
 	            		String JobId=UpdateMsg.pop().toString();
 	            		String PartionId=UpdateMsg.pop().toString();
 	            		JobHashMapInfo _tmpJob=KeyServerMain.JobMap.get(JobId);
             			String rtv=null;
 	            		if(_tmpJob!=null)
 	            		{
+	            			//System.out.println("JOB_GET_KEY_LIST 1");
 	            			rtv=_tmpJob.getKeyList(PartionId);
 	            			if(rtv!=null)
 	            			{
+	            				//System.out.println("JOB_GET_KEY_LIST 2");
 	            				BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
 	            				BackMsg.addLast(rtv);
 	            			}
-	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            			else
+	            			{
+	            				BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            				//System.out.println("JOB_GET_KEY_LIST 3");
+	            			}
 	            		}
 	            		else
+	            		{
 	            			BackMsg.addLast(Integer.toString(DATABUS.FAILED));
+	            			//System.out.println("JOB_GET_KEY_LIST 4");
+	            		}
             			BackMsg.send(worker);
             			//PubMsg.send(pubsoc);
             			break;

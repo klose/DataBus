@@ -11,7 +11,6 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMsg;
 
 import com.longyi.databus.define.DATABUS;
-import com.longyi.databus.define.ValueObject;
 
 public class PartionUpdateThread extends Thread {
 	private class FetchThread extends Thread{
@@ -36,8 +35,12 @@ public class PartionUpdateThread extends Thread {
 		public void run()
 		{
 			int listSize=_keyList.size();
+			
 			ZMsg SendMsg=new ZMsg();
-			SendMsg.addLast(Integer.toString(DATABUS.JOB_GET_KEY_BYTE));
+			if(ValueType==DATABUS.JOB_VALUE_BYTE)
+				SendMsg.addLast(Integer.toString(DATABUS.JOB_GET_KEY_BYTE));
+			else
+				SendMsg.addLast(Integer.toString(DATABUS.JOB_GET_KEY_OBJECT));
 			SendMsg.addLast(jobId);
 			SendMsg.addLast(partionId);
 			JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType);
@@ -45,38 +48,55 @@ public class PartionUpdateThread extends Thread {
 			{
 				ZMsg RealSendMsg=SendMsg.duplicate();
 				RealSendMsg.addLast(_keyList.get(i));
+				//System.out.println("heihie");
 				ZMsg backMsg=_jobSock.SendRequestOtherDaemon(Location, RealSendMsg);
+				//System.out.println("heihie");
 				int ret=Integer.parseInt(backMsg.pop().toString());
 				if(ret==DATABUS.SUCCESSFULLY)
 				{
 					if(ValueType==DATABUS.JOB_VALUE_BYTE)
 					{
 						List<byte[]> backList=new ArrayList<byte[]>();
-						for(ZFrame tmpFrame:backMsg)
+						if(backMsg.size()!=0)
 						{
-							backList.add(tmpFrame.getData());
+							for(ZFrame tmpFrame:backMsg)
+							{
+								backList.add(tmpFrame.getData());
+							}
+							_tmpJobDataMap.putkeyByte(partionId, _keyList.get(i),backList);
 						}
-						_tmpJobDataMap.putkeyByte(partionId, _keyList.get(i),backList);
+						else
+						{
+							System.out.println("shitdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+						}
 					}
 					else
 					{
-						List<ValueObject> backList=new ArrayList<ValueObject>();
-						for(ZFrame tmpFrame:backMsg)
+						List<Object> backList=new ArrayList<Object>();
+						if(backMsg.size()!=0)
 						{
-							//backList.add(ValueObject(tmpFrame.getData()));
+							for(ZFrame tmpFrame:backMsg)
+							{
+								backList.add(JobDataMap.getObject(tmpFrame.getData()));
+							}
+							_tmpJobDataMap.putkeyObject(partionId, _keyList.get(i), backList);
 						}
-						_tmpJobDataMap.putkeyObject(partionId, _keyList.get(i), backList);
+						else
+						{
+							System.out.println("shitdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+						}
 					}
 				}
 				ZMsg SendToMasterThread=new ZMsg();
 				SendToMasterThread.addLast(_keyList.get(i));
 				//SendToMasterThread.addLast(Location);
 				SendToMasterThread.send(backSoc);
+				//System.out.println("heihie");
 			}
 		}
 	}
 	private static Context context=DATABUS.context;
-	private static final HashMap<String,ZMQ.Socket> OuterServerMap=new HashMap<String,ZMQ.Socket>();
+	//private static final HashMap<String,ZMQ.Socket> OuterServerMap=new HashMap<String,ZMQ.Socket>();
 	private Socket _socketToTask=null;
 	private Socket _RecFromThread=null;
 	private String jobId;
@@ -87,6 +107,7 @@ public class PartionUpdateThread extends Thread {
 	private Socket _socketRecvTask=null;
 	private boolean ThreadState=true;
 	private int AlreadygetNumber;
+	private int ThreadNumber=0;
 	PartionUpdateThread(String jobId,String partionId,String[] Location,ArrayList<String> _keyList,boolean ValueType)
 	{
 		this.jobId=jobId;
@@ -104,29 +125,56 @@ public class PartionUpdateThread extends Thread {
 		_socketRecvTask.connect("inproc://"+partionId);
 		for(int i=0;i<Location.length;i++)
 		{
-			Thread tmp=new FetchThread(jobId,partionId,Location[i],_keyList,ValueType);
-			tmp.start();
+			//System.out.println(Location[i]);
+			//System.out.println(DaemonMain.LocalEndpoint);
+			if(!Location[i].equals(DaemonMain.LocalEndpoint))
+			{
+				Thread tmp=new FetchThread(jobId,partionId,Location[i],_keyList,ValueType);
+				tmp.start();
+				ThreadNumber++;
+			}
+			else
+			{
+				for(int j=0;j<state.length;j++)
+					state[j]=1;
+			}
 		}
 	}
 	public void run()
 	{
 		int finishNumber=0;
+		//System.out.println("finishNumber="+finishNumber);
 		while(!Thread.currentThread().isInterrupted())
 		{
-			ZMsg recvMsg=ZMsg.recvMsg(_RecFromThread);
-			ZMsg MsgToTask=recvMsg.duplicate();
-			String key=recvMsg.pop().toString();
-			int index=_keyList.indexOf(key);
-			if(index!=-1){
-				state[index]++;
-				if(state[index]==Location.length)
-				{
-					finishNumber++;
-					MsgToTask.send(_socketToTask);
+			//System.out.println("ThreadNumber="+ThreadNumber);
+			if(ThreadNumber>0)
+			{
+				ZMsg recvMsg=ZMsg.recvMsg(_RecFromThread);
+				ZMsg MsgToTask=recvMsg.duplicate();
+				String key=recvMsg.pop().toString();
+				int index=_keyList.indexOf(key);
+				if(index!=-1){
+					state[index]++;
+					if(state[index]==Location.length)
+					{
+						finishNumber++;
+						MsgToTask.send(_socketToTask);
+					}
 				}
+				if(finishNumber==_keyList.size())
+					break;
 			}
-			if(finishNumber==_keyList.size())
+			else
+			{
+				for(int i=0;i<_keyList.size();i++)
+				{
+					ZMsg preparekey=new ZMsg();
+					preparekey.addLast(_keyList.get(i));
+					preparekey.send(_socketToTask);
+					//System.out.println("============");
+				}
 				break;
+			}
 		}
 		while(ThreadState)
 		{
@@ -138,12 +186,17 @@ public class PartionUpdateThread extends Thread {
 			}
 		}
 	}
-	public synchronized String getPrepareKey()
+	public String getPrepareKey()
 	{
+		//System.out.println("getPrepareKey "+partionId+" ");
 		if(AlreadygetNumber==0)
+		{
+			ThreadState=false;
 			return null;
+		}
 		ZMsg recvMsg=ZMsg.recvMsg(_socketRecvTask);
 		AlreadygetNumber--;
+		//System.out.println("getPrepareKey key="+recvMsg.peekFirst().toString());
 		return recvMsg.pop().toString();
 	}
 	public void destroyPartionUpdate()

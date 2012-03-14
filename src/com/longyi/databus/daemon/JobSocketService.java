@@ -14,6 +14,7 @@ public class JobSocketService {
 	private static final String KeyServerEndpoint=DaemonMain.KeyServerEndpoint;
 	private static final Context context=DATABUS.context;
 	private static final Queue<ZMQ.Socket> freeSocList=new ConcurrentLinkedQueue<ZMQ.Socket>();
+	private static final Queue<ZMQ.Socket> totalsync=new ConcurrentLinkedQueue<ZMQ.Socket>();
 	private static final HashMap<String,Queue<ZMQ.Socket>> OuterServerMap=new HashMap<String,Queue<ZMQ.Socket>>();
 	public JobSocketService()
 	{
@@ -21,6 +22,28 @@ public class JobSocketService {
 	/*
 	 * 通向keyserver的通道
 	 */
+	
+	private ZMQ.Socket CreateNewDealerSocToKeyServer()
+	{
+		ZMQ.Socket tmpSoc=context.socket(ZMQ.DEALER);
+		tmpSoc.connect(KeyServerEndpoint);
+		return tmpSoc;
+	}
+	private synchronized ZMQ.Socket GetAFreeKeyServerDealerSoc()
+	{
+		if(!totalsync.isEmpty())
+		{
+			return totalsync.poll();
+		}
+		else
+			return CreateNewDealerSocToKeyServer();
+	};
+	public void SendDealerRequestToKeyServer(ZMsg ReqeustMsg)
+	{
+		ZMQ.Socket SocketToKeyServer=GetAFreeKeyServerDealerSoc();
+		ReqeustMsg.send(SocketToKeyServer);
+		totalsync.offer(SocketToKeyServer);
+	};
 	private ZMQ.Socket CreateNewSocToKeyServer()
 	{
 		ZMQ.Socket tmpSoc=context.socket(ZMQ.REQ);
@@ -57,9 +80,14 @@ public class JobSocketService {
 	private ZMQ.Socket GetAFreeOtherDaemonSoc(String Location)
 	{
 		Queue<ZMQ.Socket> _tmpSocList=OuterServerMap.get(Location);
-		if(!_tmpSocList.isEmpty())
+		if(_tmpSocList!=null)
 		{
-			return _tmpSocList.poll();
+			if(!_tmpSocList.isEmpty())
+			{
+				return _tmpSocList.poll();
+			}
+			else
+				return CreateNewSocToOtherDaemon(Location);
 		}
 		else
 			return CreateNewSocToOtherDaemon(Location);
@@ -68,8 +96,9 @@ public class JobSocketService {
 	{
 		ZMQ.Socket SocketToOtherDaemonServer=GetAFreeOtherDaemonSoc(Location);
 		ReqeustMsg.send(SocketToOtherDaemonServer);
+		//System.out.println("Send Request");
 		ZMsg recvMsg=ZMsg.recvMsg(SocketToOtherDaemonServer);
-		
+		//System.out.println("alread recvmsg");
 		Queue<ZMQ.Socket> _tmpSocList=OuterServerMap.get(Location);
 		if(_tmpSocList!=null)
 			_tmpSocList.offer(SocketToOtherDaemonServer);
@@ -79,6 +108,7 @@ public class JobSocketService {
 			_tmpSocList.offer(SocketToOtherDaemonServer);
 			OuterServerMap.put(Location, _tmpSocList);
 		}
+		//System.out.println("Send back");
 		return recvMsg;
 	};
 }
