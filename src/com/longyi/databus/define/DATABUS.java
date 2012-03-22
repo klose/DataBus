@@ -3,6 +3,8 @@ package com.longyi.databus.define;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
+
+
 public class DATABUS {
 	public static final int GET_MESSAGE_LOCATION=0;
 	public static final int SEND_MESSAGE=1;
@@ -56,7 +58,7 @@ public class DATABUS {
 	//KeyServer使用
 	public static final String KEYREQBACKEND="inproc://KeyReqBackEnd";
 	public static final String KEYPUBBACKEND="inproc://KeyPubBackEnd";
-	public static final String FILE_DATA_PATH="/tmp/";
+	public static final String FILE_DATA_PATH= MSConfiguration.getBinosTmpDir();
 	public static final int CHANNELDATANUBMER_MAX=1000;
 	public static final String DSF_BEGIN="DSF_BEGIN";
 	public static final String DSF_CURRENT="DSF_CURRENT";

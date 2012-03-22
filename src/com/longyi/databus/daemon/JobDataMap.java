@@ -29,11 +29,12 @@ public class JobDataMap {
 	private boolean ValueType=true;
 	private static ByteArrayInputStream bais =null;
 	private static ObjectInputStream ois=null;
-	
-	public JobDataMap(String jobId,boolean ValueType)
+	private final String combineClsName;
+	public JobDataMap(String jobId,boolean ValueType,String combineClsName)
 	{
 		this.jobId=jobId;
 		this.ValueType=ValueType;
+		this.combineClsName = combineClsName;
 		jobDataMap=new HashMap<String,PartionDataMap>();
 		_jobSocketServer=new JobSocketService();
 		//_socketToUpdateTokeyServer=context.socket(ZMQ.PUSH);
@@ -93,7 +94,7 @@ public class JobDataMap {
 		PartionDataMap _tmpPartionDataMap=jobDataMap.get(partionId);
 		if(_tmpPartionDataMap==null)
 		{
-			_tmpPartionDataMap=new PartionDataMap(partionId);
+			_tmpPartionDataMap=new PartionDataMap(partionId,this.combineClsName);
 			jobDataMap.put(partionId, _tmpPartionDataMap);
 			updatePartionInfoToKeyServer(partionId);
 		}
@@ -173,10 +174,11 @@ public class JobDataMap {
 		msgSend.addLast(partId);
 		ZMsg msgRecv=_jobSocketServer.SendRequestToKeyServer(msgSend);
 		int rtv=Integer.parseInt(msgRecv.pop().toString());
-		//System.out.println(rtv);
+		
 		if(rtv==DATABUS.SUCCESSFULLY)
 		{
 			String LocationList=msgRecv.pop().toString();
+			System.out.println("partion location list="+LocationList);
 			String[] arraykey=LocationList.split(", ");
 			
 			arraykey[0]=arraykey[0].substring(1);

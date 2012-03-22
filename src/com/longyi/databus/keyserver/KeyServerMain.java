@@ -1,6 +1,9 @@
 package com.longyi.databus.keyserver;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQForwarder;
 import org.zeromq.ZMQQueue;
@@ -10,10 +13,9 @@ import com.longyi.databus.define.DATABUS;
 import com.longyi.databus.define.GetLocalIpAddress;
 
 public class KeyServerMain extends Thread{
-	public static final HashMap<String,String> MessageMap=new HashMap<String,String>();
-	public static final HashMap<String,String> ChannelMap=new HashMap<String,String>();
-	public static final HashMap<String,String> FileMap=new HashMap<String,String>();
-	public static final HashMap<String,JobHashMapInfo> JobMap=new HashMap<String,JobHashMapInfo>();
+	public static final Map<String,String> MessageMap=new ConcurrentHashMap<String,String>();
+	public static final Map<String,String> ChannelMap=new ConcurrentHashMap<String,String>();
+	public static final Map<String,String> FileMap=new ConcurrentHashMap<String,String>();
 	private static Context context;
 	private static ZMQ.Socket pubSoc;
 	private static ZMQ.Socket reqSoc;
@@ -55,7 +57,7 @@ public class KeyServerMain extends Thread{
 		ReqThread.start();
         Thread PubThread = new Thread(new ZMsgForThread(context, pubbackendSoc,pubSoc));
         PubThread.start();		
-		for(int i=0;i<1;i++){
+		for(int i=0;i<10;i++){
 			KeyServerWorkThread _workThread=new KeyServerWorkThread(context);
 			_workThread.start();
 			System.out.println("Thread I start"+i);

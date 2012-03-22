@@ -331,6 +331,7 @@ public class DataMap {
 	private int storeChannelMessageToDisk(String key,ZMsg data,long datasize,int index)
 	{
 		String Filepath=DATABUS.FILE_DATA_PATH+"/Channel/"+key;
+		System.out.println("yilong" + Filepath);
 		try {
 			File file=new File(Filepath);
 			if(!file.exists())

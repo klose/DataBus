@@ -192,6 +192,9 @@ public class InnerWorkThread extends Thread{
 	            	case DATABUS.SEND_TO_CHANNEL:
 		            	{
 	            			String key=RequestMsg.pop().toString();
+	            			if (key.startsWith("MSG://")) {
+	            				key = key.substring("MSG://".length());
+	            			}
 	            			dataMap.storeChannelData(key, RequestMsg, RequestMsg.contentSize());
 	            			BackMsg.addLast(Integer.toString(DATABUS.SUCCESSFULLY));
 	    					BackMsg.send(worker);

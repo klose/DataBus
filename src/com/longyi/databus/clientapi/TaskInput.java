@@ -11,7 +11,7 @@ public class TaskInput {
 	private JobDataMap jobDataMap=null;
 	public TaskInput(String jobId,boolean ValueType)
 	{
-		jobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType);
+		jobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType,null);
 	}
 	public List<Object> getkeyObject(String partId,String key)
 	{

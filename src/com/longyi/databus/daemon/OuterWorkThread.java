@@ -58,7 +58,7 @@ public class OuterWorkThread extends Thread{
 	            		String jobId=RequestMsg.pop().toString();
 	            		String partionId=RequestMsg.pop().toString();
 	            		String key=RequestMsg.pop().toString();
-	            		JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,DATABUS.JOB_VALUE_BYTE);
+	            		JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,DATABUS.JOB_VALUE_BYTE,null);
 	            		
 	            		List<byte[]> rtvValue=_tmpJobDataMap.getkeyByte(partionId, key);
 	            		
@@ -82,7 +82,7 @@ public class OuterWorkThread extends Thread{
 	            		String partionId=RequestMsg.pop().toString();
 	            		String key=RequestMsg.pop().toString();
 	            		
-	            		JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,DATABUS.JOB_VALUE_OBJECT);
+	            		JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,DATABUS.JOB_VALUE_OBJECT,null);
 	            		
 	            		List<Object> rtvValue=_tmpJobDataMap.getkeyObject(partionId, key);
 	            		if(rtvValue!=null)

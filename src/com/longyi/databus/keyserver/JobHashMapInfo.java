@@ -2,25 +2,27 @@ package com.longyi.databus.keyserver;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JobHashMapInfo {
 	private String jobId=null;
-	private HashMap<String,PartionMapInfo> JobInfoMap=null;
+	private Map<String,PartionMapInfo> JobInfoMap=null;
 	private Set<String> PartionList=null;
 	public JobHashMapInfo(String jobId)
 	{
 		this.jobId=jobId;
-		JobInfoMap=new HashMap<String,PartionMapInfo>();
+		JobInfoMap=new ConcurrentHashMap<String,PartionMapInfo>();
 		PartionList=new HashSet<String>();
 	}
 	public int Insert(String PartionId,String key)
-	{
+	{	
 		PartionMapInfo _tmpPartionMapInfo=JobInfoMap.get(PartionId);
 		if(_tmpPartionMapInfo!=null)
 		{
 			_tmpPartionMapInfo.Insert(key);
-		}
+		}		
 		else
 		{
 			_tmpPartionMapInfo=new PartionMapInfo(jobId);

@@ -7,12 +7,12 @@ public class DataMapForJob {
 	public DataMapForJob()
 	{
 	}
-	public static JobDataMap JobDataMapFactory(String jobId,boolean ValueType)
+	public static JobDataMap JobDataMapFactory(String jobId,boolean ValueType,String combineClsName)
 	{
 		JobDataMap _tmpJobDataMap=JobMap.get(jobId);
 		if(_tmpJobDataMap==null)
 		{
-			_tmpJobDataMap=new JobDataMap(jobId,ValueType);
+			_tmpJobDataMap=new JobDataMap(jobId,ValueType, combineClsName);
 			JobMap.put(jobId, _tmpJobDataMap);
 		}
 		return _tmpJobDataMap;

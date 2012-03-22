@@ -74,6 +74,7 @@ public class JobSocketService {
 	private ZMQ.Socket CreateNewSocToOtherDaemon(String Location)
 	{
 		ZMQ.Socket tmpSoc=context.socket(ZMQ.REQ);
+		System.out.println("============="+Location);
 		tmpSoc.connect(Location);
 		return tmpSoc;
 	};

@@ -8,9 +8,10 @@ import com.longyi.databus.daemon.JobDataMap;
 
 public class TaskOutput {
 	private JobDataMap jobDataMap=null;
-	public TaskOutput(String jobId,boolean ValueType)
+	
+	public TaskOutput(String jobId,boolean ValueType,String combineClassName)
 	{
-		jobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType);
+		jobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType,combineClassName);
 	}
 	public boolean putkeyObject(String partId,String key,List<Object> value)
 	{

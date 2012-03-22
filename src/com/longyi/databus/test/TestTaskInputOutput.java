@@ -27,7 +27,7 @@ public class TestTaskInputOutput {
 		String JobID="testJob";
 		String PartionID1="Partion1";
 		String PartionID2="Partion2";
-		TaskOutput _output=new TaskOutput(JobID,DATABUS.JOB_VALUE_BYTE);
+		TaskOutput _output=new TaskOutput(JobID,DATABUS.JOB_VALUE_BYTE,null);
 		List<byte[]> partion1LoveValue=new ArrayList<byte[]>();
 		partion1LoveValue.add("I Love You".getBytes());
 		partion1LoveValue.add("I Love You".getBytes());

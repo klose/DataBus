@@ -43,7 +43,7 @@ public class PartionUpdateThread extends Thread {
 				SendMsg.addLast(Integer.toString(DATABUS.JOB_GET_KEY_OBJECT));
 			SendMsg.addLast(jobId);
 			SendMsg.addLast(partionId);
-			JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType);
+			JobDataMap _tmpJobDataMap=DataMapForJob.JobDataMapFactory(jobId,ValueType,null);
 			for(int i=0;i<listSize;i++)
 			{
 				ZMsg RealSendMsg=SendMsg.duplicate();
